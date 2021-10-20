@@ -4,7 +4,7 @@ variable "resource_group_location" {
 }
 
 variable "project_name" {
-  default = "poc-terraform-1"
+  default = "poc-terraform"
 }
 
 variable "resource_group_name_prefix" {
