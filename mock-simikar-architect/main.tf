@@ -42,7 +42,7 @@ resource "azurerm_app_service" "front" {
 
 
   site_config {
-    default_documents = ["index.html"]
+    default_documents = ["index.html", "Default.htm", "Default.html", "Default.asp", "index.htm", "iisstart.htm", "default.aspx", "index.php", "hostingstart.html"]
     # .net Core がうまいこと指定できない
     windows_fx_version = "DOTNETCORE|3.1"
     scm_type           = "None"
@@ -50,6 +50,15 @@ resource "azurerm_app_service" "front" {
   }
 
   app_settings = {
+    "APPINSIGHTS_INSTRUMENTATIONKEY"                  = "${azurerm_application_insights.front.instrumentation_key}"
+    "APPINSIGHTS_PROFILERFEATURE_VERSION"             = "1.0.0"
+    "APPINSIGHTS_SNAPSHOTFEATURE_VERSION"             = "1.0.0"
+    "ApplicationInsightsAgent_EXTENSION_VERSION"      = "~2"
+    "DiagnosticServices_EXTENSION_VERSION"            = "~3"
+    "InstrumentationEngine_EXTENSION_VERSION"         = "~1"
+    "SnapshotDebugger_EXTENSION_VERSION"              = "~1"
+    "XDT_MicrosoftApplicationInsights_BaseExtensions" = "~1"
+    "XDT_MicrosoftApplicationInsights_Mode"           = "recommended"
   }
 
   connection_string {
@@ -57,4 +66,11 @@ resource "azurerm_app_service" "front" {
     type  = "SQLServer"
     value = "Server=some-server.mydomain.com;Integrated Security=SSPI"
   }
+}
+
+resource "azurerm_application_insights" "front" {
+  name                = "appi-${var.resource_name}"
+  location            = azurerm_resource_group.dev.location
+  resource_group_name = azurerm_resource_group.dev.name
+  application_type    = "web"
 }
