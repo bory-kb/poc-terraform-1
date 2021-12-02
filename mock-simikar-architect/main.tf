@@ -3,7 +3,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 2.65"
+      version = "= 2.79"
     }
   }
 
@@ -14,16 +14,16 @@ provider "azurerm" {
   features {}
 }
 
-resource "azurerm_resource_group" "example" {
+resource "azurerm_resource_group" "dev" {
   name     = "poc-${var.resource_name}"
   location = var.location
 }
 
 
-resource "azurerm_app_service_plan" "example" {
+resource "azurerm_app_service_plan" "dev" {
   name                = "plan-${var.resource_name}"
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
+  location            = azurerm_resource_group.dev.location
+  resource_group_name = azurerm_resource_group.dev.name
 
   sku {
     tier = "Basic"
@@ -32,20 +32,24 @@ resource "azurerm_app_service_plan" "example" {
 
 }
 
-resource "azurerm_app_service" "example" {
-  name                = "app-${var.resource_name}"
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
-  app_service_plan_id = azurerm_app_service_plan.example.id
+resource "azurerm_app_service" "front" {
+  name                    = "app-${var.resource_name}"
+  location                = azurerm_resource_group.dev.location
+  resource_group_name     = azurerm_resource_group.dev.name
+  app_service_plan_id     = azurerm_app_service_plan.dev.id
+  client_affinity_enabled = true
+
+
 
   site_config {
-    dotnet_framework_version = "v4.0"
-    scm_type                 = "None"
-    ftps_state = "ftpsOnly"
+    default_documents = ["index.html"]
+    # .net Core がうまいこと指定できない
+    windows_fx_version = "DOTNETCORE|3.1"
+    scm_type           = "None"
+    ftps_state         = "FtpsOnly"
   }
 
   app_settings = {
-    "SOME_KEY" = "some-value"
   }
 
   connection_string {
